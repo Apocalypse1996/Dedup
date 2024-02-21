@@ -1,4 +1,7 @@
+import json
 import os
+import uuid
+
 import aioredis
 import hashlib
 
@@ -26,8 +29,11 @@ async def request_ratelimiter(request: Request, response: Response):
         raise Exception('Duplicate request ignored')
 
     await redis.set(dedup_key_hashed, 'true', ex=DEDUP_KEY_TTL_SECONDS)
-    celery_task = proxy_request.delay(headers=headers, body=body)
-    response.headers['X-CELERY-ID'] = celery_task.id
+
+    celery_task_id = str(uuid.uuid4())
+    request_data = json.dumps(dict(headers=headers, body=body, task_id=celery_task_id))
+    await redis.set(f'mq.proxy_request[{celery_task_id}]', request_data)
+    response.headers['X-CELERY-ID'] = celery_task_id
 
 
 @app.post("/")

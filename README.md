@@ -4,6 +4,7 @@
 4. установить зависимости requirements.txt;
 5. Запусить приложение: uvicorn app:app
 6. Установить и запустить Celery: celery -A mq worker
+7. Запустить Celery beat: celery -A mq beat
 7. Прогнать тесты: pytest tests.py
 8. Прогнать под нагрузкой: locust --host=http://localhost:8000
 9. Потыкать апишку: http://localhost:8000/docs
